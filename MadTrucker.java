@@ -6,6 +6,8 @@ public class MadTrucker {
     private ArrayList<Integer> mileages;
     private ArrayList<Integer> locations;
     private boolean[] used;
+    private HashSet<Integer> forbidden;
+
 
     /**
      * Initializes the puzzle with the given parameters.
@@ -19,6 +21,8 @@ public class MadTrucker {
         this.mileages = mileages;
         this.locations = locations;
         this.used = new boolean[n];
+        this.forbidden = new HashSet<>(locations);
+
     }
 
     /**
@@ -53,7 +57,7 @@ public class MadTrucker {
             if (used[i]) continue;
 
             int nextDistance = currentDistance + mileages.get(i);
-            if (locations.contains(nextDistance)) continue;
+            if (forbidden.contains(nextDistance)) continue;
 
             used[i] = true;
             pourOrder.add(i);
