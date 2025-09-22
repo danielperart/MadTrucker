@@ -32,44 +32,77 @@ public class MadTrucker {
      */
     ArrayList<Integer> solve() {
         ArrayList<Integer> pourOrder = new ArrayList<>(n);
-
         Arrays.fill(used, false);
-        if (buildOrder(pourOrder, 0).size() == n) {
+
+        // Build once, greedily, with no backtracking.
+        buildOrder(pourOrder, 0);
+
+        if (pourOrder.size() == n) {
             return pourOrder;
-        }
-
+            }
+        // Per assignment, inputs are always solvable; reaching here would be unexpected.
         throw new IllegalStateException("No valid order found (input should be solvable).");
-    }
+}
 
-    /**
-     * Recursive helper method to construct the pour order.
-     *
-     * @param pourOrder the current order of indices
-     * @param currentDistance distance traveled so far
-     * @return the updated pour order
-     */
+        /**
+         * Recursive helper method to construct the pour order.
+         *
+         * @param pourOrder the current order of indices
+         * @param currentDistance distance traveled so far
+         * @return the updated pour order
+         */
     ArrayList<Integer> buildOrder(ArrayList<Integer> pourOrder, int currentDistance) {
+        // Base case: done.
         if (pourOrder.size() == n) {
             return pourOrder;
         }
 
-        for (int i = 0; i < n; i++) {
-            if (used[i]) continue;
-
-            int nextDistance = currentDistance + mileages.get(i);
-            if (forbidden.contains(nextDistance)) continue;
-
-            used[i] = true;
-            pourOrder.add(i);
-
-            buildOrder(pourOrder, nextDistance);
-
-            if (pourOrder.size() == n) return pourOrder;
-
-            pourOrder.remove(pourOrder.size() - 1);
-            used[i] = false;
+        // Find the next forbidden point ahead of our current position
+        int nextForbidden = Integer.MAX_VALUE;
+        
+        for (int f : locations) {
+            if (f > currentDistance && f < nextForbidden) nextForbidden = f;
         }
-        return pourOrder;
+        boolean hasNextForbidden = (nextForbidden != Integer.MAX_VALUE);
+
+        //a can that jumps over the next forbidden (if one exists) is preferred.
+        // while still not landing exactly on any forbidden point
+        int pick = -1;
+        if (hasNextForbidden) {
+            for (int i = 0; i < n; i++) {
+                if (used[i]) continue;
+                    int nextDistance = currentDistance + mileages.get(i);
+                if (forbidden.contains(nextDistance)) continue;       // not stop on forbidden locations
+                if (nextDistance > nextForbidden) {                   // Jump past the next forbidden
+                    pick = i;
+                    break;
+                }
+            }
+        }
+
+        //If we couldn't jump past, pick any safe can that doesn't land on forbidden.
+        if (pick == -1) {
+            for (int i = 0; i < n; i++) {
+                if (used[i]) continue;
+                int nextDistance = currentDistance + mileages.get(i);
+                if (!forbidden.contains(nextDistance)) {
+                    pick = i;
+                    break;
+                }
+            }
+        }
+
+        if (pick == -1) {
+            // error trigger
+            throw new IllegalStateException("No valid next can found.");
+        }
+
+        
+        used[pick] = true;
+        pourOrder.add(pick);
+
+        // Recurse for the remaining cans
+        return buildOrder(pourOrder, currentDistance + mileages.get(pick));
     }
 
     /**
