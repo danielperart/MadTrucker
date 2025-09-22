@@ -4,13 +4,11 @@ public class MadTrucker {
     private static Scanner scanner = new Scanner(System.in);
     private int n;
     private ArrayList<Integer> mileages;
-    private ArrayList<Integer> locations;
     private boolean[] used;
     private HashSet<Integer> forbidden;
 
-
     /**
-     * Initializes the puzzle with the given parameters.
+     * This function initializes the puzzle with the given parameters.
      *
      * @param n number of cans
      * @param mileages list of mileage values for the cans
@@ -19,14 +17,13 @@ public class MadTrucker {
     void setup(int n, ArrayList<Integer> mileages, ArrayList<Integer> locations) {
         this.n = n;
         this.mileages = mileages;
-        this.locations = locations;
         this.used = new boolean[n];
         this.forbidden = new HashSet<>(locations);
 
     }
 
     /**
-     * Finds a valid order to pour the cans.
+     * This function finds a valid order to pour the cans using recursion.
      *
      * @return a list of indices representing the pour order
      */
@@ -36,50 +33,94 @@ public class MadTrucker {
 
         // total distance, by computing sum of cans.
         int total = 0;
-        for (int v : mileages) total += v;
+        for (int v : mileages) {
+            total += v;
+        }
 
         // build order method
         buildOrder(pourOrder, total);
-        if (pourOrder.size() == n) return pourOrder;
-        throw new IllegalStateException("No valid order found (input should be solvable).");
-        }
 
-        /**
-         * Recursive helper method to construct the pour order.
-         *
-         * @param pourOrder the current order of indices
-         * @param currentDistance distance traveled so far
-         * @return the updated pour order
-         */
-        ArrayList<Integer> buildOrder(ArrayList<Integer> pourOrder, int remaining) {
-            
-            if (remaining == 0) return pourOrder;
-
-            // Then pick a can whose previous stop isnt forbidden
-            int pick = -1;
-            for (int i = 0; i < n; i++) {
-                if (used[i]) continue;
-                int v = mileages.get(i);
-                int prevStop = remaining - v;
-                if (prevStop < 0) continue;                 // safety guard
-                if (prevStop == 0 || !forbidden.contains(prevStop)) {
-                    pick = i;
-                    break;
-                }
-            }
-
-            if (pick == -1) throw new IllegalStateException("No valid next can found.");
-            // save and recurse
-            used[pick] = true;
-            buildOrder(pourOrder, remaining - mileages.get(pick));
-
-            // append after recursion
-            pourOrder.add(pick);
+        if (pourOrder.size() == n) {
             return pourOrder;
         }
 
+        throw new IllegalStateException("No valid order found (input should be solvable).");
+    }
+
+
     /**
-     * Reads input and solves exactly one test case.
+     * This function uses the remaining distance and the can index to check
+     * if the can can be poured.
+     *
+     * @param remaining - the distance remaining
+     * @param index - the can index
+     * @return -
+     */
+    boolean validateCan(int remaining, int index) {
+        if (used[index]) {
+            return false;
+        }
+
+        int mileage = mileages.get(index);
+        int prevStop = remaining - mileage;
+
+        if (prevStop < 0) {
+            return false;
+        }
+
+        return prevStop == 0 || !forbidden.contains(prevStop);
+    }
+
+    /**
+     * This function picks a non-forbidden and valid can to continue the pour process.
+     *
+     * @param remaining - the distance remaining
+     * @return - the index of the picked can
+     */
+    int getValidCan(int remaining) {
+
+        int pickedCan = -1;
+
+        for (int i = 0; i < n; i++) {
+            boolean isViable = validateCan(remaining, i);
+
+            if (isViable) {
+                return i;
+            }
+        }
+
+        return pickedCan;
+    }
+
+    /**
+     * This function is a recursive helper method to construct the pour order.
+     *
+     * @param pourOrder the current order of indices
+     * @param remaining distance left to travel
+     */
+    void buildOrder(ArrayList<Integer> pourOrder, int remaining) {
+
+        if (remaining == 0) {
+            return;
+        }
+
+        // Then pick a non-forbidden can
+        int pickedCan = getValidCan(remaining);
+
+        if (pickedCan == -1) {
+            throw new IllegalStateException("No valid next can found.");
+        }
+
+        // save and recurse
+        used[pickedCan] = true;
+        buildOrder(pourOrder, remaining - mileages.get(pickedCan));
+
+        // append after recursion
+        pourOrder.add(pickedCan);
+    }
+
+    /**
+     * This function reads the input and solves exactly one test case.
      */
     void run() {
         n = scanner.nextInt();
@@ -94,16 +135,23 @@ public class MadTrucker {
             locations.add(scanner.nextInt());
         }
 
+        scanner.close();
+
         setup(n, mileages, locations);
         ArrayList<Integer> order = solve();
 
         for (int i = 0; i < order.size(); i++) {
-            if (i > 0) System.out.print(" ");
+            if (i > 0) {
+                System.out.print(" ");
+            }
             System.out.print(order.get(i));
         }
         System.out.println();
     }
 
+    /**
+     * This function initializes the program and runs the main function.
+     */
     public static void main(String[] args) {
         new MadTrucker().run();
     }
