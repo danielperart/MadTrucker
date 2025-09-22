@@ -93,7 +93,7 @@ public class MadTrucker {
      *
      * @param remaining - the distance remaining
      * @param index - the can index
-     * @return -
+     * @return - boolean value which represents the can can be used
      */
     boolean validateCan(int remaining, int index) {
         if (used[index]) {
