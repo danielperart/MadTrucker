@@ -1,6 +1,45 @@
 import java.util.*;
 
+
+/**
+ * Takes a list of distances and forbidden locations
+ * then uses recursion to find any possible combination
+ * where all the distances are used and no forbidden location is reached
+ * and finally outputs the combination to the user.
+ *
+ * Purpose and usageL
+ * Reads a list of numbers representing cans of fuel and locations which do not allow stopping.
+ * The mad trucker does not have brakes so he has to use cans as distance measurements.
+ * There are however some locations which do not allow stopping so the trucker has to avoid those.
+ * The core idea of the program is to output any possible combination of cans
+ * where every can ends up being used and the trucker did not stop on
+ * any locations which do not allow stopping.
+ *
+ * Input:
+ * The program reads from the following input
+ * N
+ * a1 a2 a3 a4  ... aN
+ * b1 b2 b3 b4 ... b(N-1)
+ * where;
+ * - N is the amount of cans.
+ * - a1...aN is the amount of distance each can can reach.
+ * - b1...b(N-1) are the locations which do not allow stopping.
+ * - every input is larger than 1 and smaller than 500000.
+ * - inputs can be in a straight line, to improve readability they are explained
+ * as if they are not in the same line.
+ *
+ * Output:
+ * - A single line representing a possible combination of cans where every can is used
+ * and no forbidden location is reached.
+ *
+ * @author Jan Modun
+ * @ID 2281031
+ * @author Daniel Pérez Artajona
+ * @ID 2124378
+ *
+ */
 public class MadTrucker {
+
     private static Scanner scanner = new Scanner(System.in);
     private int n;
     private ArrayList<Integer> mileages;
@@ -23,7 +62,7 @@ public class MadTrucker {
     }
 
     /**
-     * This function finds a valid order to pour the cans using recursion.
+     * This function finds a valid order to pour the cans using the recursion helper function.
      *
      * @return a list of indices representing the pour order
      */
@@ -72,7 +111,8 @@ public class MadTrucker {
     }
 
     /**
-     * This function picks a non-forbidden and valid can to continue the pour process.
+     * This function picks a non-forbidden and valid can
+     * to continue the can selection recursive process.
      *
      * @param remaining - the distance remaining
      * @return - the index of the picked can
